@@ -4,3 +4,5 @@ class main():
         print("바보")
 
 main()
+
+print('하이 하이')

@@ -19,13 +19,17 @@ root = tk.Tk()
 root.title("Fit Finder")
 root.geometry("800x500")
 
+# Load a magnifying glass icon image
+search_icon = tk.PhotoImage(file="돋보기.png")
+
 # search 버튼
-search_button = ttk.Button(root, text="Search", command=search)
-search_button.place(x=200, y=40)
+search_button = ttk.Button(root, image=search_icon, command=search)
+search_button.image = search_icon
+search_button.place(x=200, y=40, width=35, height=35)
 
 # 검색 박스
 entry = ttk.Entry(root)
-entry.place(x=50, y=40)
+entry.place(x=50, y=50)
 
 # 즐겨 찾기 버튼
 favorite_button = ttk.Button(root, text="즐겨찾기")

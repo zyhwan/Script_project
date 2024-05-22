@@ -73,7 +73,6 @@ def display_selected_facility():
 
     info_text.delete(1.0, tk.END)
     info_text.insert(tk.END, f"체육관명: {selected_facility['name']}\n")
-    info_text.insert(tk.END, f"주소: {selected_facility['address']}\n")
     info_text.insert(tk.END, f"시설: {selected_facility['etc_faclt_nm']}\n")
     info_text.insert(tk.END, f"면적: {selected_facility['gym_stnd']}\n")
     info_text.insert(tk.END, f"가능한 스포츠: {selected_facility['gym_posbl_item_cont']}\n")
@@ -98,11 +97,23 @@ def geocode_and_show_map(address):
     else:
         print(f"Error: {response.status_code}, {response.text}")
 
+def zoom_in():
+    global zoom_level
+    zoom_level += 1
+    display_selected_facility()  # 줌 인
+
+def zoom_out():
+    global zoom_level
+    if zoom_level > 0:
+        zoom_level -= 1
+        display_selected_facility()  # 줌 아웃
+
 def show_google_maps(lat, lng):
-    url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lng}&zoom=15&size=400x400&key={MAPS_API_KEY}"
+    global zoom_level
+    url = f"https://maps.googleapis.com/maps/api/staticmap?center={lat},{lng}&zoom={zoom_level}&size=400x400&key={MAPS_API_KEY}"
     response = requests.get(url)
     if response.status_code == 200:
-        image = Image.open(BytesIO(response.content))  # Use BytesIO to open the image from response content
+        image = Image.open(BytesIO(response.content))
         map_image = ImageTk.PhotoImage(image)
         map_label.config(image=map_image)
         map_label.image = map_image
@@ -128,6 +139,17 @@ def open_email_client():
 root = tk.Tk()
 root.title("Fit Finder")
 root.geometry("800x500")
+
+# 줌인 줌아웃 글로별 변수
+zoom_level = 15  # Initial zoom level
+
+# 줌인 버튼
+zoom_in_button = ttk.Button(root, text="Zoom In", command=zoom_in)
+zoom_in_button.place(x=400, y=460, width=100, height=30)
+
+# 줌 아웃 버튼
+zoom_out_button = ttk.Button(root, text="Zoom Out", command=zoom_out)
+zoom_out_button.place(x=510, y=460, width=100, height=30)
 
 # 돋보기 이미지 가져오기
 search_icon = tk.PhotoImage(file="돋보기.png")

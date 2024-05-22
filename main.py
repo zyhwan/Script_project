@@ -18,36 +18,57 @@ def search():
     response = requests.get(BASE_URL, params=params)
 
     if response.status_code == 200:
-        root = ET.fromstring(response.content)
-        display_facilities(root)
+        try:
+            root = ET.fromstring(response.content)
+            display_facilities(root)
+        except ET.ParseError as e:
+            print(f"XML Parse Error: {e}")
     else:
-        print(f"Error: {response.status_code}")
-
+        print(f"Error: {response.status_code}, {response.text}")
 
 def display_facilities(root):
-    facilities_listbox.delete(0, tk.END)
+    facilities_combobox['values'] = []
+    facility_data = []
     for facility in root.findall('.//row'):
-        name = facility.find('BIZPLC_NM').text
-        latitude = facility.find('REFINE_WGS84_LAT').text
-        longitude = facility.find('REFINE_WGS84_LOGT').text
-        if name and latitude and longitude:
-            facilities_listbox.insert(tk.END, f"{name} ({latitude}, {longitude})")
+        name = facility.find('FACLT_NM').text
+        lat = facility.find('REFINE_WGS84_LAT').text
+        lon = facility.find('REFINE_WGS84_LOGT').text
 
+        info = {
+            'name': name,
+            'lat': lat,
+            'lon': lon,
+            'etc_faclt_nm': facility.find('ETC_FACLT_NM').text,
+            'gym_stnd': facility.find('GYM_STND').text,
+            'gym_posbl_item_cont': facility.find('GYM_POSBL_ITEM_CONT').text
+        }
+        facility_data.append(info)
+
+        if name:
+            facilities_combobox['values'] = (*facilities_combobox['values'], name)
+
+    if facility_data:
+        facilities_combobox.current(0)
+        facilities_combobox.bind("<<ComboboxSelected>>", lambda event: display_selected_facility(facility_data))
+
+def display_selected_facility(facility_data):
+    selected_index = facilities_combobox.current()
+    selected_facility = facility_data[selected_index]
+
+    info_text.delete(1.0, tk.END)
+    info_text.insert(tk.END, f"Name: {selected_facility['name']}\n")
+    info_text.insert(tk.END, f"Facilities: {selected_facility['etc_faclt_nm']}\n")
+    info_text.insert(tk.END, f"Dimensions: {selected_facility['gym_stnd']}\n")
+    info_text.insert(tk.END, f"Available Items: {selected_facility['gym_posbl_item_cont']}\n")
+
+    lat = selected_facility['lat']
+    lon = selected_facility['lon']
+    if lat and lon:
+        show_google_maps(lat, lon)
 
 def show_google_maps(lat, lon):
     url = f"https://www.google.com/maps/@{lat},{lon},15z"
     webbrowser.open(url)
-
-
-def on_facility_select(event):
-    selection = facilities_listbox.curselection()
-    if selection:
-        index = selection[0]
-        facility_info = facilities_listbox.get(index)
-        name, coords = facility_info.split(' (')
-        lat, lon = coords.rstrip(')').split(', ')
-        show_google_maps(lat, lon)
-
 
 def open_email_client():
     email_address = "your_email@example.com"  # Replace with your email address
@@ -55,7 +76,6 @@ def open_email_client():
     body = "Write your feedback here..."  # Body of the email
     email_url = f"mailto:{email_address}?subject={subject}&body={body}"
     webbrowser.open(email_url)
-
 
 # 메인 위도우 창
 root = tk.Tk()
@@ -90,10 +110,13 @@ email_button = ttk.Button(root, image=Gmail_icon, command=open_email_client)
 email_button.image = Gmail_icon
 email_button.place(x=150, y=370, width=120, height=120)
 
-# Create and place the listbox to display facilities
-facilities_listbox = tk.Listbox(root)
-facilities_listbox.place(x=400, y=50, width=380, height=400)  # Adjusted to fit the layout
-facilities_listbox.bind('<<ListboxSelect>>', on_facility_select)
+# 콤보박스 생성
+facilities_combobox = ttk.Combobox(root, state="readonly")
+facilities_combobox.place(x=400, y=50, width=380, height=25)
+
+# 정보 출력 텍스트 박스 생성
+info_text = tk.Text(root, wrap=tk.WORD)
+info_text.place(x=400, y=80, width=380, height=370)
 
 # GUI 작동
 root.mainloop()

@@ -5,10 +5,11 @@ import requests
 import xml.etree.ElementTree as ET
 import webbrowser
 from io import BytesIO
+import config
 
 # api키 받아오기
-API_KEY = "53410d545159465aab4d0554a9aeca36"
-MAPS_API_KEY = "AIzaSyDHyb1cVoi0TvJzPEkdPBXL5DIQrUHNKIk"
+API_KEY = config.API_KEY
+MAPS_API_KEY = config.MAPS_API_KEY
 BASE_URL = "https://openapi.gg.go.kr/PublicLivelihood"
 
 regions = ["수원시", "고양시", "성남시", "용인시", "부천시", "안산시", "안양시", "남양주시", "화성시", "평택시", "의정부시", "시흥시", "파주시", "김포시", "광명시", "광주시", "군포시", "하남시", "오산시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"]
@@ -140,7 +141,7 @@ root = tk.Tk()
 root.title("Fit Finder")
 root.geometry("800x500")
 
-# 줌인 줌아웃 글로별 변수
+#줌인 줌아웃 글로벌 변수
 zoom_level = 15  # Initial zoom level
 
 # 줌인 버튼

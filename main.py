@@ -15,7 +15,7 @@ BASE_URL = "https://openapi.gg.go.kr/PublicLivelihood"
 regions = ["수원시", "고양시", "성남시", "용인시", "부천시", "안산시", "안양시", "남양주시", "화성시", "평택시", "의정부시", "시흥시", "파주시", "김포시", "광명시", "광주시", "군포시", "하남시", "오산시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"]
 
 facility_data = []
-
+favorites = set()
 def search():
     query = region_combobox.get()
     if not query:
@@ -46,7 +46,7 @@ def display_facilities(root):
         name = facility.find('FACLT_NM').text
         lat = facility.find('REFINE_WGS84_LAT').text
         lon = facility.find('REFINE_WGS84_LOGT').text
-        address = facility.find('REFINE_LOTNO_ADDR').text  # Extract address information
+        address = facility.find('REFINE_LOTNO_ADDR').text  # Extract address
 
         info = {
             'name': name,
@@ -61,12 +61,17 @@ def display_facilities(root):
 
         if name:
             facilities_combobox['values'] = (*facilities_combobox['values'], name)
-
+    update_combobox_values()
     if facility_data:
         facilities_combobox.current(0)
         facilities_combobox.bind("<<ComboboxSelected>>", lambda event: display_selected_facility())
 
-
+def update_combobox_values():
+    facility_names = [
+        f"{'*' if info['name'] in favorites else ''} {info['name']}"
+        for info in facility_data
+    ]
+    facilities_combobox['values'] = facility_names
 
 def display_selected_facility():
     selected_index = facilities_combobox.current()
@@ -107,7 +112,7 @@ def zoom_out():
     global zoom_level
     if zoom_level > 0:
         zoom_level -= 1
-        display_selected_facility()  # 줌 아웃
+        display_selected_facility()
 
 def show_google_maps(lat, lng):
     global zoom_level
@@ -135,7 +140,17 @@ def open_email_client():
         webbrowser.open(email_url)
     else:
         print("No facility selected or facility data is empty.")
-
+def toggle_favorite():#즐겨찾기 토글 키
+    selected_index = facilities_combobox.current()
+    if selected_index >= 0 and selected_index < len(facility_data):
+        facility_name = facility_data[selected_index]['name']
+        if facility_name in favorites:
+            favorites.remove(facility_name)
+        else:
+            favorites.add(facility_name)
+        update_combobox_values()
+    else:
+        print("No facility selected or facility data is empty.")
 # 메인 위도우 창
 root = tk.Tk()
 root.title("Fit Finder")
@@ -168,7 +183,7 @@ region_combobox.place(x=40, y=50, width=220)
 favorite_icon = tk.PhotoImage(file="즐겨찾기.png")
 
 # 즐겨 찾기 버튼
-favorite_button = ttk.Button(root, image=favorite_icon)
+favorite_button = ttk.Button(root, image=favorite_icon, command=toggle_favorite)
 favorite_button.image = favorite_icon
 favorite_button.place(x=40, y=370, width=120, height=120)
 

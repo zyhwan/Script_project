@@ -8,8 +8,14 @@ import webbrowser
 API_KEY = "53410d545159465aab4d0554a9aeca36"
 BASE_URL = "https://openapi.gg.go.kr/PublicLivelihood"
 
+regions = ["수원시", "고양시", "성남시", "용인시", "부천시", "안산시", "안양시", "남양주시", "화성시", "평택시", "의정부시", "시흥시", "파주시", "김포시", "광명시", "광주시", "군포시", "하남시", "오산시", "양주시", "구리시", "안성시", "포천시", "의왕시", "여주시", "양평군", "동두천시", "가평군", "과천시", "연천군"]
+
 def search():
-    query = entry.get()
+    query = region_combobox.get()
+    if not query:
+        print("Please select a region.")
+        return
+
     params = {
         'KEY': API_KEY,
         'SIGUN_NM': query,
@@ -71,7 +77,7 @@ def show_google_maps(lat, lon):
     webbrowser.open(url)
 
 def open_email_client():
-    email_address = "your_email@example.com"  # Replace with your email address
+    email_address = "zyhwan010410@gmail.com"  # Replace with your email address
     subject = "Feedback on Fit Finder"  # Subject of the email
     body = "Write your feedback here..."  # Body of the email
     email_url = f"mailto:{email_address}?subject={subject}&body={body}"
@@ -85,14 +91,14 @@ root.geometry("800x500")
 # 돋보기 이미지 가져오기
 search_icon = tk.PhotoImage(file="돋보기.png")
 
-# search 버튼
+# 검색 버튼
 search_button = ttk.Button(root, image=search_icon, command=search)
 search_button.image = search_icon
 search_button.place(x=260, y=40, width=35, height=35)
 
-# 검색 박스
-entry = ttk.Entry(root)
-entry.place(x=50, y=50, width=200)
+# 지역 선택 콤보박스
+region_combobox = ttk.Combobox(root, values=regions, state="readonly")
+region_combobox.place(x=50, y=50, width=200)
 
 # 즐겨 찾기 이미지 가져오기
 favorite_icon = tk.PhotoImage(file="즐겨찾기.png")

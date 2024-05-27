@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 import webbrowser
 from io import BytesIO
 import config
-
+import time
 # api키 받아오기
 API_KEY = config.API_KEY
 MAPS_API_KEY = config.MAPS_API_KEY
@@ -46,7 +46,7 @@ def display_facilities(root):
         name = facility.find('FACLT_NM').text
         lat = facility.find('REFINE_WGS84_LAT').text
         lon = facility.find('REFINE_WGS84_LOGT').text
-        address = facility.find('REFINE_LOTNO_ADDR').text  # Extract address
+        address = facility.find('REFINE_LOTNO_ADDR').text  # Extract address information
 
         info = {
             'name': name,
@@ -72,6 +72,11 @@ def update_combobox_values():
         for info in facility_data
     ]
     facilities_combobox['values'] = facility_names
+
+def update_time():
+    now = time.strftime("%Y년 %m월 %d일\n%H시  %M분  %S초", time.localtime())
+    time_label.config(text=now)
+    root.after(1000, update_time)
 
 def display_selected_facility():
     selected_index = facilities_combobox.current()
@@ -159,6 +164,13 @@ root.geometry("800x500")
 #줌인 줌아웃 글로벌 변수
 zoom_level = 15  # Initial zoom level
 
+# 현재 시간 표시 레이블
+time_label = ttk.Label(root, font=("Arial", 12))
+time_label.place(x=40,y=10)
+
+# 시간 업데이트 시작
+
+update_time()
 # 줌인 버튼
 zoom_in_button = ttk.Button(root, text="Zoom In", command=zoom_in)
 zoom_in_button.place(x=400, y=460, width=100, height=30)

@@ -7,6 +7,8 @@ import webbrowser
 from io import BytesIO
 import config
 import time
+import pygame
+
 # api키 받아오기
 API_KEY = config.API_KEY
 MAPS_API_KEY = config.MAPS_API_KEY
@@ -16,6 +18,13 @@ regions = ["수원시", "고양시", "성남시", "용인시", "부천시", "안
 
 facility_data = []
 favorites = set()
+bgm_playing = True
+
+# Initialize pygame mixer
+pygame.mixer.init()
+pygame.mixer.music.load("프리스타일_-_7_-_Y.mp3")  # Replace with your BGM file path
+pygame.mixer.music.play(-1)  # Play the music in a loop
+
 def search():
     query = region_combobox.get()
     if not query:
@@ -156,6 +165,17 @@ def toggle_favorite():#즐겨찾기 토글 키
         update_combobox_values()
     else:
         print("No facility selected or facility data is empty.")
+
+def toggle_bgm():
+    global bgm_playing
+    if bgm_playing:
+        pygame.mixer.music.pause()
+        bgm_button.config(image=mute_icon)
+    else:
+        pygame.mixer.music.unpause()
+        bgm_button.config(image=unmute_icon)
+    bgm_playing = not bgm_playing
+
 # 메인 위도우 창
 root = tk.Tk()
 root.title("Fit Finder")
@@ -169,8 +189,23 @@ time_label = ttk.Label(root, font=("Arial", 12))
 time_label.place(x=40,y=10)
 
 # 시간 업데이트 시작
-
 update_time()
+# BGM 토글 버튼
+# 이미지 로드
+mute_image = Image.open("소리껐을때.png")
+unmute_image = Image.open("소리켰을때.png")
+
+# 이미지 크기 조정
+mute_image_resized = mute_image.resize((20, 20))
+unmute_image_resized = unmute_image.resize((20, 20))
+
+# PhotoImage 객체로 변환
+mute_icon = ImageTk.PhotoImage(mute_image_resized)
+unmute_icon = ImageTk.PhotoImage(unmute_image_resized)
+
+# 버튼 생성
+bgm_button = tk.Button(root, image=unmute_icon, command=toggle_bgm)
+bgm_button.place(x=180, y=10)
 # 줌인 버튼
 zoom_in_button = ttk.Button(root, text="Zoom In", command=zoom_in)
 zoom_in_button.place(x=400, y=460, width=100, height=30)

@@ -9,6 +9,9 @@ import config
 import time
 import pygame
 import telepot
+
+
+
 bot = telepot.Bot('7329831774:AAF8z4z3L6gI20n18cOM0WSJ9w1sFNJaQV0')
 bot.getMe()
 

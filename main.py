@@ -8,6 +8,9 @@ from io import BytesIO
 import config
 import time
 import pygame
+import telepot
+bot = telepot.Bot('7329831774:AAF8z4z3L6gI20n18cOM0WSJ9w1sFNJaQV0')
+bot.getMe()
 
 # api키 받아오기
 API_KEY = config.API_KEY
@@ -24,6 +27,24 @@ bgm_playing = True
 pygame.mixer.init()
 pygame.mixer.music.load("프리스타일_-_7_-_Y.mp3")  # Replace with your BGM file path
 pygame.mixer.music.play(-1)  # Play the music in a loop
+
+
+def send_facility_info_via_telegram():
+    selected_index = facilities_combobox.current()
+    if selected_index >= 0 and selected_index < len(facility_data):
+        selected_facility = facility_data[selected_index]
+        chat_id = '7465298776'  # 대상 사용자의 채팅 ID로 변경해야 합니다.
+
+        message = f"체육관명: {selected_facility['name']}\n"
+        message += f"시설: {selected_facility['etc_faclt_nm']}\n"
+        message += f"면적: {selected_facility['gym_stnd']}\n"
+        message += f"가능한 스포츠: {selected_facility['gym_posbl_item_cont']}\n"
+        message += f"주소: {selected_facility['address']}\n"
+
+        # 텔레그램 메시지 보내기
+        bot.sendMessage(chat_id, message)
+    else:
+        print("No facility selected or facility data is empty.")
 
 def search():
     query = region_combobox.get()
@@ -253,6 +274,11 @@ info_text.place(x=40, y=120, width=300, height=230)
 # 지도 출력 라벨 생성
 map_label = ttk.Label(root)
 map_label.place(x=400, y=50, width=380, height=390)
+
+# 텔레그램으로 시설 정보 보내는 버튼
+telegram_icon = tk.PhotoImage(file="텔레그램.png")
+send_telegram_button = ttk.Button(root, image=telegram_icon, command=send_facility_info_via_telegram)
+send_telegram_button.place(x=300, y=380, width=90, height=90)
 
 # GUI 작동
 root.mainloop()
